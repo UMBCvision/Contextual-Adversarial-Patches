@@ -1,0 +1,40 @@
+# filter dataset
+python filter_PASCAL_VOC.py PASCAL_VOC_annotations.txt /nfs1/code/aniruddha/detection-patch/VOCdevkit/VOC2007/ImageSets/Main/test.txt
+
+PER IMAGE PATCH
+
+# train
+python train_per_image_patch.py cfg/voc.data cfg/yolo-voc.cfg weights/yolo-voc.weights dataset/no_class_overlap_clean_test/aeroplane_test.txt output/perimagepatch/backup/aeroplane output/perimagepatch/patched_images/aeroplane 0 0 logs/perimagepatch/aeroplane.log
+
+ls $PWD/* ../../../../dataset/perimagepatch/aeroplane_test.txt
+
+# validation
+python valid_patch.py cfg/voc.data cfg/yolo-voc.cfg weights/yolo-voc.weights dataset/perimagepatch/aeroplane_test.txt aeroplane results/perimagepatch/with_fp/aeroplane 0
+
+# remove fp
+python scripts/remove_fp_patch.py results/perimagepatch/with_fp/aeroplane/comp4_det_test_ dataset/perimagepatch/aeroplane_test.txt dummyfolder results/perimagepatch/removed_fp/aeroplane/comp4_det_test_ aeroplane
+
+# Run VOC evaluation with_fp
+python scripts/voc_eval_patch.py results/perimagepatch/with_fp/aeroplane/comp4_det_test_ dataset/perimagepatch/aeroplane_test.txt dummyfolder aeroplane
+
+# Run VOC evaluation removed_fp
+python scripts/voc_eval_patch.py results/perimagepatch/removed_fp/aeroplane/comp4_det_test_ dataset/perimagepatch/aeroplane_test.txt dummyfolder aeroplane\
+
+
+UNIVERSAL PATCH
+
+# train
+python train_universal_patch.py cfg/voc.data cfg/yolo-voc.cfg weights/yolo-voc.weights dataset/no_class_overlap_clean_test/cow_test_half_1.txt dummyfolder output/universalpatch/noise/cow/batch_size_1 9 0 logs/universalpatch/cow/batch_size_1/cow.log 1 100
+
+
+# validation
+python valid_npy_array_universal.py cfg/voc.data cfg/yolo-voc.cfg weights/yolo-voc.weights dataset/no_class_overlap_clean_test/cow_test_half_2.txt cow output/universalpatch/noise/cow/batch_size_1/epoch_100_universal_patch.npy results/universalpatch/cow/with_fp/batch_size_1 0
+
+# remove fp
+python scripts/remove_fp_universal.py results/universalpatch/cow/with_fp/batch_size_1/comp4_det_test_ dataset/no_class_overlap_clean_test/cow_test_half_2.txt dummyfolder results/universalpatch/cow/removed_fp/batch_size_1/comp4_det_test_ cow
+
+# Run VOC evaluation with_fp
+python scripts/voc_eval_universal.py results/universalpatch/cow/with_fp/batch_size_1/comp4_det_test_ dataset/no_class_overlap_clean_test/cow_test_half_2.txt dummyfolder cow
+
+# Run VOC evaluation removed_fp
+python scripts/voc_eval_universal.py results/universalpatch/cow/removed_fp/batch_size_1/comp4_det_test_ dataset/no_class_overlap_clean_test/cow_test_half_2.txt dummyfolder cow
