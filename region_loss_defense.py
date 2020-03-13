@@ -153,7 +153,7 @@ class RegionLoss(nn.Module):
         self.loss_conf = AverageMeter()
         self.loss_cls = AverageMeter()
         self.loss_def = AverageMeter()
-        self.lambda1 = 5.0
+        self.lambda1 = 1.0
 
     def forward(self, output, target, features):
 
@@ -249,7 +249,7 @@ class RegionLoss(nn.Module):
         loss_conf = nn.MSELoss(size_average=False)(
             conf * conf_mask, tconf * conf_mask) / 2.0
         if cls.size(0) == 0 and tcls.size(0) == 0:
-            loss_cls = torch.Tensor([0])
+            loss_cls = torch.Tensor([0]).cuda()
         else:
             loss_cls = self.class_scale * \
                 nn.CrossEntropyLoss(size_average=False)(cls, tcls)
