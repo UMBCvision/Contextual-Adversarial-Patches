@@ -18,7 +18,7 @@ python scripts/remove_fp_patch.py results/perimagepatch/with_fp/aeroplane/comp4_
 python scripts/voc_eval_patch.py results/perimagepatch/with_fp/aeroplane/comp4_det_test_ dataset/perimagepatch/aeroplane_test.txt dummyfolder aeroplane
 
 # Run VOC evaluation removed_fp
-python scripts/voc_eval_patch.py results/perimagepatch/removed_fp/aeroplane/comp4_det_test_ dataset/perimagepatch/aeroplane_test.txt dummyfolder aeroplane\
+python scripts/voc_eval_patch.py results/perimagepatch/removed_fp/aeroplane/comp4_det_test_ dataset/perimagepatch/aeroplane_test.txt dummyfolder aeroplane
 
 
 UNIVERSAL PATCH

@@ -6,7 +6,7 @@
 
 import xml.etree.ElementTree as ET
 import os,sys
-import cPickle
+import _pickle as cPickle
 import numpy as np
 
 def parse_rec(filename):
@@ -29,6 +29,12 @@ def parse_rec(filename):
         #                       int(bbox.find('xmax').text.split('.')[0]),
         #                       int(bbox.find('ymax').text.split('.')[0])]
         objects.append(obj_struct)
+        # Added to retrieve width and height
+    size_obj = tree.find('size')
+    size_struct = {}
+    size_struct['width'] = size_obj.find('width').text
+    size_struct['height'] = size_obj.find('height').text
+    objects.append(size_struct)
 
     return objects
 
@@ -106,7 +112,7 @@ def voc_eval(detpath,
         lines = f.readlines()
     imagenames = [x.strip() for x in lines]
 
-    # added by Aniruddha
+    # added to accommodate size information
     imagenames = [imagename.split('/')[-1].split('.')[0] for imagename in imagenames]
     # print(imagenames)
 
@@ -116,9 +122,9 @@ def voc_eval(detpath,
         for i, imagename in enumerate(imagenames):
             recs[imagename] = parse_rec(annopath.format(imagename))
             if i % 100 == 0:
-                print 'Reading annotation for {:d}/{:d}'.format(
-                    i + 1, len(imagenames))
-        # save = Change Aniruddha
+                print('Reading annotation for {:d}/{:d}'.format(
+                    i + 1, len(imagenames)))
+        # save = Changed
         # print 'Saving cached annotations to {:s}'.format(cachefile)
         # with open(cachefile, 'w') as f:
         #     cPickle.dump(recs, f)
@@ -131,14 +137,16 @@ def voc_eval(detpath,
     class_recs = {}
     npos = 0
     for imagename in imagenames:
-        R = [obj for obj in recs[imagename] if obj['name'] == classname]
+        # R = [obj for obj in recs[imagename] if obj['name'] == classname]
+        R = [obj for obj in recs[imagename][:-1] if obj['name'] == classname]
         bbox = np.array([x['bbox'] for x in R])
         difficult = np.array([x['difficult'] for x in R]).astype(np.bool)
         det = [False] * len(R)
         npos = npos + sum(~difficult)
         class_recs[imagename] = {'bbox': bbox,
                                  'difficult': difficult,
-                                 'det': det}
+                                 'det': det,
+                                 'size': recs[imagename][-1]}
 
     # read dets
     detfile = detpath.format(classname)
@@ -150,7 +158,7 @@ def voc_eval(detpath,
 
     splitlines = [x.strip().split(' ') for x in lines]
 
-    # Added by Aniruddha - if detection file is empty
+    # Added - if detection file is empty
     if len(splitlines) == 0:
         return 0, 0, 0
 
@@ -177,21 +185,38 @@ def voc_eval(detpath,
         ovmax = -np.inf
         BBGT = R['bbox'].astype(float)
 
+
+        width = int(class_recs[image_ids[d]]['size']['width'])
+        height = int(class_recs[image_ids[d]]['size']['height'])
+
         if BBGT.size > 0:
             # compute overlaps
             # intersection
-            ixmin = np.maximum(BBGT[:, 0], bb[0])
-            iymin = np.maximum(BBGT[:, 1], bb[1])
-            ixmax = np.minimum(BBGT[:, 2], bb[2])
-            iymax = np.minimum(BBGT[:, 3], bb[3])
+            ixmin = np.maximum(((BBGT[:, 0])*416)/width, bb[0])             # Change GT annotations to 416*416 size image
+            iymin = np.maximum(((BBGT[:, 1])*416)/height, bb[1])            # Change GT annotations to 416*416 size image
+            ixmax = np.minimum(((BBGT[:, 2])*416)/width, bb[2])             # Change GT annotations to 416*416 size image
+            iymax = np.minimum(((BBGT[:, 3])*416)/height, bb[3])            # Change GT annotations to 416*416 size image
             iw = np.maximum(ixmax - ixmin + 1., 0.)
             ih = np.maximum(iymax - iymin + 1., 0.)
             inters = iw * ih
 
             # union
             uni = ((bb[2] - bb[0] + 1.) * (bb[3] - bb[1] + 1.) +
-                   (BBGT[:, 2] - BBGT[:, 0] + 1.) *
-                   (BBGT[:, 3] - BBGT[:, 1] + 1.) - inters)
+                   (((BBGT[:, 2])*416)/width - ((BBGT[:, 0])*416)/width + 1.) *
+                   (((BBGT[:, 3])*416)/height - ((BBGT[:, 1])*416)/height + 1.) - inters)
+
+            # ixmin = np.maximum(BBGT[:, 0], bb[0])
+            # iymin = np.maximum(BBGT[:, 1], bb[1])
+            # ixmax = np.minimum(BBGT[:, 2], bb[2])
+            # iymax = np.minimum(BBGT[:, 3], bb[3])
+            # iw = np.maximum(ixmax - ixmin + 1., 0.)
+            # ih = np.maximum(iymax - iymin + 1., 0.)
+            # inters = iw * ih
+            #
+            # # union
+            # uni = ((bb[2] - bb[0] + 1.) * (bb[3] - bb[1] + 1.) +
+            #        (BBGT[:, 2] - BBGT[:, 0] + 1.) *
+            #        (BBGT[:, 3] - BBGT[:, 1] + 1.) - inters)
 
             overlaps = inters / uni
             ovmax = np.max(overlaps)
@@ -222,7 +247,7 @@ def voc_eval(detpath,
 
 def _do_python_eval(res_prefix, output_dir = 'output'):
     #_devkit_path = '/data/xiaohang/pytorch-yolo2/VOCdevkit'
-    _devkit_path = '/mirror_nfs1/code/aniruddha/detection-patch/VOCdevkit'          # Changed by Aniruddha Hamed
+    _devkit_path = '<devkit_root>/detection-patch/VOCdevkit'          # Changed
     _year = '2007'
     _classes = ('__background__', # always index 0
         'aeroplane', 'bicycle', 'bird', 'boat',
@@ -232,16 +257,13 @@ def _do_python_eval(res_prefix, output_dir = 'output'):
         'sheep', 'sofa', 'train', 'tvmonitor')
 
     #filename = '/data/hongji/darknet/results/comp4_det_test_{:s}.txt'
-    filename = res_prefix + '{:s}.txt' #Hamed
+    filename = res_prefix + '{:s}.txt'
     annopath = os.path.join(
         _devkit_path,
         'VOC' + _year,
         'Annotations',
         '{:s}.xml')
 
-
-    # Changed by Aniruddha
-    # imagesetfile = '/mirror_nfs1/code/aniruddha/detection-patch/dataset/no_class_overlap/aeroplane_test.txt'
 
     # imagesetfile = os.path.join(
     #     _devkit_path,
@@ -251,28 +273,24 @@ def _do_python_eval(res_prefix, output_dir = 'output'):
     #     'test.txt')
     #cachedir = os.path.join(_devkit_path, 'annotations_cache')
 
-    cachedir = sys.argv[3] #Hamed
-#    cachedir = '/mirror_nfs1/code/aniruddha/detection-patch/annotations/KITTI/train_clean_car_half2' # + res_prefix.split('/')[-2]
-    # cachedir = '/mirror_nfs1/code/aniruddha/detection-patch/annotations/experiment7_evaluation/2007_test/'
+    cachedir = sys.argv[3]
     aps = []
     # The PASCAL VOC metric changed in 2010
     # use_07_metric = True if int(_year) < 2010 else False
     use_07_metric = True
-    print 'VOC07 metric? ' + ('Yes' if use_07_metric else 'No')
+    print('VOC07 metric? ' + ('Yes' if use_07_metric else 'No'))
     if not os.path.isdir(output_dir):
         os.mkdir(output_dir)
 
 
-    imagesetfile = sys.argv[2] #Hamed
-#    imagesetfile = '/mirror_nfs1/data/aniruddha/detection-patch/KITTI/dataset/car_train_half2.txt' # + res_prefix.split('/')[-2] + '_test_half_2.txt'
-    # imagesetfile = '/mirror_nfs1/code/aniruddha/detection-patch/2007_test.txt'
+    imagesetfile = sys.argv[2]
     print(imagesetfile)
-    # Changed by Aniruddha
+    # Changed
     for i, cls in enumerate(_classes):
         # if cls == '__background__':
         #     continue
 
-        if cls != sys.argv[4]:                  # Change Aniruddha
+        if cls != sys.argv[4]:                  # Change
             continue
 
         rec, prec, ap = voc_eval(
@@ -280,7 +298,7 @@ def _do_python_eval(res_prefix, output_dir = 'output'):
             use_07_metric=use_07_metric)
         aps += [ap]
         print('AP for {} = {:.4f}'.format(cls, ap))
-        # Changed by Aniruddha
+        # Changed
         # with open(os.path.join(output_dir, cls + '_pr.pkl'), 'w') as f:
         #     cPickle.dump({'rec': rec, 'prec': prec, 'ap': ap}, f)
     # print('Mean AP = {:.4f}'.format(np.mean(aps)))
@@ -296,7 +314,6 @@ def _do_python_eval(res_prefix, output_dir = 'output'):
     #     if cls == '__background__':
     #         continue
 
-    #     imagesetfile = '/mirror_nfs1/code/aniruddha/detection-patch/dataset/no_class_overlap/' + cls + '_test.txt'
     #     print(imagesetfile)
     #     rec, prec, ap = voc_eval(
     #             filename, annopath, imagesetfile, cls, cachedir, ovthresh=0.5,
@@ -316,20 +333,9 @@ if __name__ == '__main__':
     #classes = ["aeroplane", "bicycle", "bird", "boat", "bottle", "bus", "car", "cat", "chair", "cow", "diningtable", "dog", "horse", "motorbike", "person", "pottedplant", "sheep", "sofa", "train", "tvmonitor"]
 
     import sys
-    if len(sys.argv) == 5: #Hamed
+    if len(sys.argv) == 5:
         res_prefix = sys.argv[1]
         _do_python_eval(res_prefix, output_dir = 'output')
     else:
         print('Usage:')
-        print(' python voc_eval_hamed1.py result_prefix imagesetfile cachedir classname')
-
-    # for i,x in enumerate(classes):#enumerate(classes):
-    #     # if i!=5:
-    #     #   continue
-    #     # res_prefix = '/mirror_nfs1/code/aniruddha/detection-patch/results/experiment5_evaluation/person/'
-    #     res_prefix = '/mirror_nfs1/code/aniruddha/detection-patch/results/experiment7_evaluation/noise_test_half_2_run_2_removed_fp/' + x + '/comp4_det_test_'
-    #     _do_python_eval(res_prefix, output_dir = 'output')
-
-#     res_prefix = sys.argv[1] #Hamed
-# #    res_prefix = '/mirror_nfs1/code/aniruddha/detection-patch/results/KITTI/train_universal_patch_car_half2/comp4_det_test_'
-#     _do_python_eval(res_prefix, output_dir = 'output')
+        print(' python voc_eval_universal.py result_prefix imagesetfile cachedir classname')

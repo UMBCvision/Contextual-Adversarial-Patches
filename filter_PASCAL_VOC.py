@@ -12,7 +12,6 @@ if len(sys.argv) != 3:
     print('Usage:')
     print('python filter_images_get_bbox.py annotations.txt test.txt')
     exit()
-# /nfs1/code/aniruddha/detection-patch/VOCdevkit/VOC2007/ImageSets/Main/test.txt
 
 '''
     Input: annotation txt file
@@ -115,8 +114,8 @@ for key, value in sorted(classes.items()):
 
 # open files for each class
 fid_list = []
-dataset_folder_prefix = '/nfs3/code/aniruddha/UMBCvision/Contextual-Adversarial-Patches/dataset/no_class_overlap_clean_test/'
-jpeg_prefix = '/nfs1/code/aniruddha/detection-patch/VOCdevkit/VOC2007/JPEGImages/'
+dataset_folder_prefix = './dataset/no_class_overlap_clean_test/'
+jpeg_prefix = '<devkit_root>/VOCdevkit/VOC2007/JPEGImages/'
 
 if not os.path.exists(dataset_folder_prefix):
     os.makedirs(dataset_folder_prefix)
@@ -134,10 +133,9 @@ for i in range(num_images):
 for j in range(num_classes):
     fid_list[j].close()
 
-dataset_folder_prefix = '/nfs3/code/aniruddha/UMBCvision/Contextual-Adversarial-Patches/dataset/no_class_overlap_clean_test/'
-# jpeg_prefix = '/nfs1/code/aniruddha/detection-patch/VOCdevkit/VOC2007/JPEGImages/'
+dataset_folder_prefix = './dataset/no_class_overlap_clean_test/'
 
-fwr = open("/nfs3/code/aniruddha/UMBCvision/Contextual-Adversarial-Patches/dataset/filtered_VOC_test.txt", "w")
+fwr = open("./dataset/filtered_VOC_test.txt", "w")
 
 for i in range(num_images):
     if sum(filter_matrix[i][:]) > 0:

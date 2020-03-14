@@ -124,14 +124,3 @@ def load_data_detection(imgpath, shape, jitter, hue, saturation, exposure):
     img,flip,dx,dy,sx,sy = data_augmentation(img, shape, jitter, hue, saturation, exposure)
     label = fill_truth_detection(labpath, img.width, img.height, flip, dx, dy, 1./sx, 1./sy)
     return img,label
-
-def load_data_detection_ANIRUDDHA(imgpath, shape, jitter, hue, saturation, exposure):
-    # labpath = imgpath.replace('images', 'labels').replace('JPEGImages', 'labels').replace('.jpg', '.txt').replace('.png','.txt')
-    #labpath = imgpath.replace('images', 'labels').replace('train', 'labels').replace('.jpg', '.txt').replace('.png','.txt')
-
-    ## data augmentation
-    img = Image.open(imgpath).convert('RGB')
-    img = img.resize(shape)
-    img,flip,dx,dy,sx,sy = data_augmentation(img, shape, jitter, hue, saturation, exposure)
-    # label = fill_truth_detection(labpath, img.width, img.height, flip, dx, dy, 1./sx, 1./sy)
-    return img

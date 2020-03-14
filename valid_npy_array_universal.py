@@ -56,7 +56,7 @@ def valid(datacfg, cfgfile, weightfile, outfile, valid_images):
 
 	conf_thresh = 0.005
 	nms_thresh = 0.45
-	for batch_idx, (data, target, dummy) in enumerate(valid_loader):  # Changed by Aniruddha
+	for batch_idx, (data, target, dummy) in enumerate(valid_loader):  # Changed
 		data = data.cuda()
 		data = Variable(data, volatile = True)
 		output = m(data).data
@@ -64,8 +64,9 @@ def valid(datacfg, cfgfile, weightfile, outfile, valid_images):
 		for i in range(output.size(0)):
 			lineId = lineId + 1
 			fileId = os.path.basename(valid_files[lineId]).split('.')[0]
-			width, height = get_image_size(valid_files[lineId])
-			print(valid_files[lineId])
+			# width, height = get_image_size(valid_files[lineId])
+			width, height = 416, 416
+			print(valid_files[lineId], width, height)
 			boxes = batch_boxes[i]
 			boxes = nms(boxes, nms_thresh)
 			for box in boxes:
@@ -75,7 +76,7 @@ def valid(datacfg, cfgfile, weightfile, outfile, valid_images):
 				y2 = (box[1] + box[3]/2.0) * height
 
 				det_conf = box[4]
-				for j in range((len(box)-5)/2):
+				for j in range((len(box)-5)//2):
 					cls_conf = box[5+2*j]
 					cls_id = box[6+2*j]
 					prob =det_conf * cls_conf
@@ -95,4 +96,4 @@ if __name__ == '__main__':
 		valid(datacfg, cfgfile, weightfile, outfile, valid_images)
 	else:
 		print('Usage:')
-		print(' python valid_npy_array_universal_hamed1.py datacfg cfgfile weightfile valid_images classname noise_path result_prefix gpu')
+		print(' python valid_npy_array_universal.py datacfg cfgfile weightfile valid_images classname noise_path result_prefix gpu')

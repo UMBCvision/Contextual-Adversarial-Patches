@@ -190,7 +190,7 @@ def train(epoch):
 
         if use_cuda:
             data0 = data0.cuda()
-            target0 = target0.cuda()
+            # target0 = target0.cuda()
         data0, target0 = Variable(data0, requires_grad=False), Variable(target0, requires_grad=False)
 
 
@@ -236,7 +236,7 @@ def train(epoch):
                 model.noise.data = torch.clamp(model.noise.data, 0, 1)
 
                 print("[" + time.asctime(time.localtime(time.time())) + "]" + 'Batch num:%d Iteration: %d / %d Loss : %f noise norm: %f Fooled so far: %d Max Class Prob: %0.3f' \
-                                                                    % (batch_idx, i, num_iter, loss.data[0], model.noise.norm(), num_fooled, max_class_prob))
+                                                                    % (batch_idx, i, num_iter, loss.item(), model.noise.norm(), num_fooled, max_class_prob))
 
 
         if max_class_prob < 0.35:
@@ -245,27 +245,27 @@ def train(epoch):
             fooled = True
 
             png_save = ((data_cloned.data[0] + model.noise.data.squeeze()).cpu().numpy()*255).transpose(1,2,0)
-            numpy_save = (data_cloned.data[0] + model.noise.data.squeeze()).cpu().numpy()
+            # numpy_save = (data_cloned.data[0] + model.noise.data.squeeze()).cpu().numpy()
             png_save = png_save.astype(np.uint8)
             png_save = png_save.clip(0, 255)
             png_image = Image.fromarray(png_save)
             png_image.save(backupdir+'/'+'fooled'+ '/'+ str(int(max_class_prob*100)).zfill(3)+'_'+imgpaths[0].split('/')[-1][:-4] +'_adv'+'.png')
 
             png_image.save(final_result_dir + '/' + imgpaths[0].split('/')[-1][:-4] + '.png')
-            np.save(noise_result_dir +'/'+ imgpaths[0].split('/')[-1][:-4] + '.npy', model.noise.data)
+            np.save(noise_result_dir +'/'+ imgpaths[0].split('/')[-1][:-4] + '.npy', model.noise.data.squeeze().cpu().numpy())
 
         if not fooled:
             print("Couldn't fool image {}".format(imgpaths))
 
             png_save = ((data_cloned.data[0] + model.noise.data.squeeze()).cpu().numpy()*255).transpose(1,2,0)
-            numpy_save = (data_cloned.data[0] + model.noise.data.squeeze()).cpu().numpy()
+            # numpy_save = (data_cloned.data[0] + model.noise.data.squeeze()).cpu().numpy()
             png_save = png_save.astype(np.uint8)
             png_save = png_save.clip(0, 255)
             png_image = Image.fromarray(png_save)
             png_image.save(backupdir+'/'+'notfooled'+ '/'+ str(int(max_class_prob*100)).zfill(3)+'_'+imgpaths[0].split('/')[-1][:-4] +'_adv'+'.png')
 
             png_image.save(final_result_dir + '/' + imgpaths[0].split('/')[-1][:-4] + '.png')
-            np.save(noise_result_dir +'/'+ imgpaths[0].split('/')[-1][:-4] + '.npy', model.noise.data)
+            np.save(noise_result_dir +'/'+ imgpaths[0].split('/')[-1][:-4] + '.npy', model.noise.data.squeeze().cpu().numpy())
 
 for epoch in range(0, max_epochs):
     print('Epoch {}'.format(epoch))

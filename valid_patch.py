@@ -5,6 +5,7 @@ from torch.autograd import Variable
 from torchvision import datasets, transforms
 from utils import *
 import os
+import pdb
 
 use_cuda = True
 gpus = sys.argv[7]
@@ -13,12 +14,12 @@ if use_cuda:
 
 def valid(datacfg, cfgfile, weightfile, outfile, valid_images):
     options = read_data_cfg(datacfg)
-    # valid_images = options['valid']   # Changed by Aniruddha - passed as command line argument
+    # valid_images = options['valid']   # Changed - passed as command line argument
     # valid_images = sys.argv[4]
     name_list = options['names']
 
     classname = sys.argv[5]
-    result_prefix = sys.argv[6] #Hamed
+    result_prefix = sys.argv[6]
     prefix = result_prefix
     names = load_class_names(name_list)
 
@@ -55,9 +56,9 @@ def valid(datacfg, cfgfile, weightfile, outfile, valid_images):
 
     lineId = -1
 
-    conf_thresh = 0.005       # CHANGE ANIRUDDHA
+    conf_thresh = 0.005
     nms_thresh = 0.45
-    for batch_idx, (data, target, dummy) in enumerate(valid_loader):  # Changed by Aniruddha
+    for batch_idx, (data, target, dummy) in enumerate(valid_loader):  # Changed
         data = data.cuda()
         data = Variable(data, volatile = True)
         output = m(data).data
@@ -66,8 +67,9 @@ def valid(datacfg, cfgfile, weightfile, outfile, valid_images):
             lineId = lineId + 1
             fileId = os.path.basename(valid_files[lineId]).split('.')[0]
             width, height = get_image_size(valid_files[lineId])
+            # pdb.set_trace()
             #width, height = 416, 416
-            print(valid_files[lineId])
+            print(valid_files[lineId], width, height)
             boxes = batch_boxes[i]
             boxes = nms(boxes, nms_thresh)
             for box in boxes:
@@ -77,7 +79,7 @@ def valid(datacfg, cfgfile, weightfile, outfile, valid_images):
                 y2 = (box[1] + box[3]/2.0) * height
 
                 det_conf = box[4]
-                for j in range((len(box)-5)/2):
+                for j in range((len(box)-5)//2):
                     cls_conf = box[5+2*j]
                     cls_id = box[6+2*j]
                     prob =det_conf * cls_conf
@@ -88,7 +90,7 @@ def valid(datacfg, cfgfile, weightfile, outfile, valid_images):
 
 if __name__ == '__main__':
     import sys
-    if len(sys.argv) == 8: #Hamed
+    if len(sys.argv) == 8:
         datacfg = sys.argv[1]
         cfgfile = sys.argv[2]
         weightfile = sys.argv[3]

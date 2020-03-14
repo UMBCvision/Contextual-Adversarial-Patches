@@ -159,7 +159,7 @@ def train(epoch):
         if use_cuda:
             data = data.cuda()
         t3 = time.time()
-        data, target = Variable(data, requires_grad=True), Variable(target)
+        data, target = Variable(data, requires_grad=True), Variable(target.float())
         t4 = time.time()
         optimizer.zero_grad()
         t5 = time.time()

@@ -84,7 +84,7 @@ class listDataset(Dataset):
             # img_tensor = img_tensor + torch.from_numpy(noise)
             img_tensor = torch.clamp(img_tensor, 0, 1)
 
-            labpath = imgpath.replace('images', 'labels').replace('JPEGImages', 'labels').replace('.jpg', '.txt').replace('.png','.txt') #Hamed
+            labpath = imgpath.replace('images', 'labels').replace('JPEGImages', 'labels').replace('.jpg', '.txt').replace('.png','.txt')
             # print(labpath)
             #labpath = imgpath.replace('images', 'labels').replace('train', 'labels').replace('.jpg', '.txt').replace('.png','.txt')
             label = torch.zeros(50*5)
@@ -110,89 +110,4 @@ class listDataset(Dataset):
             label = self.target_transform(label)
 
         self.seen = self.seen + self.num_workers
-        ''' Return imgpath as well. Akshay code.
-        '''
-        return (img_tensor, label, imgpath)
-
-
-class listDataset_patchdetector(Dataset):
-
-    def __init__(self, root, shape=None, shuffle=True, transform=None, target_transform=None, train=False, seen=0, batch_size=64, num_workers=4, noise_path=None):
-       with open(root, 'r') as file:
-           self.lines = file.readlines()
-
-       if shuffle:
-           random.shuffle(self.lines)
-
-       self.nSamples  = len(self.lines)
-       self.transform = transform
-       self.target_transform = target_transform
-       self.train = train
-       self.shape = shape
-       self.seen = seen
-       self.batch_size = batch_size
-       self.num_workers = num_workers
-       self.noise_path = noise_path
-
-    def __len__(self):
-        return self.nSamples
-
-    def __getitem__(self, index):
-        assert index <= len(self), 'index range error'
-        imgpath = self.lines[index].rstrip()
-        ''' Fix the width to be 13*32=416 and do not randomize
-        '''
-        width = 13*32
-
-
-        if self.train and index % 64== 0:
-            if self.seen < 4000*64:
-               width = 13*32
-               self.shape = (width, width)
-            elif self.seen < 8000*64:
-               width = (random.randint(0,3) + 13)*32
-               self.shape = (width, width)
-            elif self.seen < 12000*64:
-               width = (random.randint(0,5) + 12)*32
-               self.shape = (width, width)
-            elif self.seen < 16000*64:
-               width = (random.randint(0,7) + 11)*32
-               self.shape = (width, width)
-            else: # self.seen < 20000*64:
-               width = (random.randint(0,9) + 10)*32
-               self.shape = (width, width)
-
-        if self.train:
-            jitter = 0.2
-            hue = 0.1
-            saturation = 1.5
-            exposure = 1.5
-
-            img = load_data_detection_ANIRUDDHA(imgpath, self.shape, jitter, hue, saturation, exposure)
-            if "VOCdevkit" in imgpath:
-                label = torch.zeros(1)
-            else:
-                label = torch.ones(1)
-        else:
-            img = Image.open(imgpath).convert('RGB')
-            if self.shape:
-                img = img.resize(self.shape)
-
-            totensor_transform = transforms.ToTensor()
-            img_tensor = totensor_transform(img)
-
-
-            noise = np.load(self.noise_path)
-            img_tensor[:, 5:5+patchSize, 5:5+patchSize] = torch.from_numpy(noise[:, 5:5+patchSize, 5:5+patchSize])
-            img_tensor = torch.clamp(img_tensor, 0, 1)
-
-            img_tensor -= torch.Tensor([0.485, 0.456, 0.406]).view(3,1,1).expand(3,416,416)
-            img_tensor /= torch.Tensor([0.229, 0.224, 0.225]).view(3,1,1).expand(3,416,416)
-
-            label = torch.ones(1)
-
-
-        if self.transform is not None:
-            img = self.transform(img)
-
         return (img_tensor, label, imgpath)

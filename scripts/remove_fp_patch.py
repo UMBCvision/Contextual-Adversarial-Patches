@@ -6,7 +6,7 @@
 
 import xml.etree.ElementTree as ET
 import os,sys
-import cPickle
+import _pickle as cPickle
 import numpy as np
 import math
 from shutil import copyfile
@@ -42,7 +42,7 @@ def parse_rec(filename):
         #                       int(bbox.find('ymax').text.split('.')[0])]
         objects.append(obj_struct)
 
-    # Added by Aniruddha to retrieve width and height
+    # Added to retrieve width and height
     size_obj = tree.find('size')
     size_struct = {}
     size_struct['width'] = size_obj.find('width').text
@@ -124,7 +124,7 @@ def remove_fp(detpath,
         lines = f.readlines()
     imagenames = [x.strip() for x in lines]
 
-    # added by Aniruddha
+    # added
     imagenames = [imagename.split('/')[-1].split('.')[0] for imagename in imagenames]
     # print(imagenames)
 
@@ -135,8 +135,8 @@ def remove_fp(detpath,
         for i, imagename in enumerate(imagenames):
             recs[imagename] = parse_rec(annopath.format(imagename))
             if i % 100 == 0:
-                print 'Reading annotation for {:d}/{:d}'.format(
-                    i + 1, len(imagenames))
+                print('Reading annotation for {:d}/{:d}'.format(
+                    i + 1, len(imagenames)))
         # save
         # print 'Saving cached annotations to {:s}'.format(cachefile)
         # with open(cachefile, 'w') as f:
@@ -151,7 +151,7 @@ def remove_fp(detpath,
     npos = 0
     for imagename in imagenames:
         R = [obj for obj in recs[imagename][:-1] if obj['name'] == classname]  # to avoid error
-        # Added by Aniruddha - retrieve width and height
+        # Added - retrieve width and height
         # R.append(recs[imagename][-1])
         bbox = np.array([x['bbox'] for x in R])
         difficult = np.array([x['difficult'] for x in R]).astype(np.bool)
@@ -167,7 +167,7 @@ def remove_fp(detpath,
     with open(detfile, 'r') as f:
         lines = f.readlines()
 
-    # Added by Aniruddha
+    # Added
 
     #newdetfile = detfile.replace('no_class_overlap_patch','no_class_overlap_patch_removed_fp')
     newdetfile = sys.argv[4] + classname + '.txt'
@@ -180,7 +180,7 @@ def remove_fp(detpath,
 
     splitlines = [x.strip().split(' ') for x in lines]
 
-    # Added by Aniruddha - if detection file is empty
+    # Added - if detection file is empty
     if len(splitlines) == 0:
         return 0, 0, 0
 
@@ -212,7 +212,7 @@ def remove_fp(detpath,
         R = class_recs[image_ids[d]]
         bb = BB[d, :].astype(float)
         ovmax = -np.inf
-        BBGT = R['bbox'].astype(float)     # Change Aniruddha
+        BBGT = R['bbox'].astype(float)     # Change
 
         width = int(class_recs[image_ids[d]]['size']['width'])
         height = int(class_recs[image_ids[d]]['size']['height'])
@@ -330,7 +330,7 @@ def remove_fp(detpath,
 
 
 def _do_python_eval(res_prefix, output_dir = 'output'):
-    _devkit_path = '/mirror_nfs1/code/aniruddha/detection-patch/VOCdevkit'          # Changed by Aniruddha
+    _devkit_path = '<devkit_root>/VOCdevkit'          # Changed
     _year = '2007'
     _classes = ('__background__', # always index 0
         'aeroplane', 'bicycle', 'bird', 'boat',
@@ -348,9 +348,6 @@ def _do_python_eval(res_prefix, output_dir = 'output'):
         '{:s}.xml')
 
 
-    # Changed by Aniruddha
-    # imagesetfile = '/mirror_nfs1/code/aniruddha/detection-patch/dataset/no_class_overlap/aeroplane_test.txt'
-
     # imagesetfile = os.path.join(
     #     _devkit_path,
     #     'VOC' + _year,
@@ -359,30 +356,27 @@ def _do_python_eval(res_prefix, output_dir = 'output'):
     #     'test.txt')
     #cachedir = os.path.join(_devkit_path, 'annotations_cache')
 
-    #cachedir = '/mirror_nfs1/code/aniruddha/detection-patch/annotations/experiment7_evaluation/no_class_overlap_noise_test_half_2_removed_fp/' + res_prefix.split('/')[-2]
+
     cachedir = sys.argv[3]
-    # cachedir = '/mirror_nfs1/code/aniruddha/detection-patch/annotations/experiment5_evaluation/person_test_removed_fp/'
     aps = []
     # The PASCAL VOC metric changed in 2010
     # use_07_metric = True if int(_year) < 2010 else False
     use_07_metric = True
-    print 'VOC07 metric? ' + ('Yes' if use_07_metric else 'No')
+    print('VOC07 metric? ' + ('Yes' if use_07_metric else 'No'))
     # if not os.path.isdir(output_dir):
     #     os.mkdir(output_dir)
 
 
-    # imagesetfile = '/mirror_nfs1/code/aniruddha/detection-patch/dataset/no_class_overlap_clean_test/' + res_prefix.split('/')[-2] + '_test_half_2.txt'
     imagesetfile = sys.argv[2]
-    # imagesetfile = '/mirror_nfs1/code/aniruddha/detection-patch/2007_test.txt'
     print(imagesetfile)
-    # Changed by Aniruddha
+    # Changed
     for i, cls in enumerate(_classes):
-        if cls != sys.argv[5]:                  # Change Aniruddha
+        if cls != sys.argv[5]:                  # Change
             if cls != '__background__':
                 copyfile(res_prefix + cls + '.txt', sys.argv[4] + cls + '.txt')
             continue
 
-        # CHANGE ANIRUDDHA - remove for all classes
+        # CHANGE - remove for all classes
 
         # if cls == "__background__":
         #     continue
@@ -393,7 +387,7 @@ def _do_python_eval(res_prefix, output_dir = 'output'):
             use_07_metric=use_07_metric)
     #     aps += [ap]
     #     print('AP for {} = {:.4f}'.format(cls, ap))
-    #     # Changed by Aniruddha
+    #     # Changed
     #     # with open(os.path.join(output_dir, cls + '_pr.pkl'), 'w') as f:
     #     #     cPickle.dump({'rec': rec, 'prec': prec, 'ap': ap}, f)
     # print('Mean AP = {:.4f}'.format(np.mean(aps)))
@@ -409,7 +403,6 @@ def _do_python_eval(res_prefix, output_dir = 'output'):
     #     if cls == '__background__':
     #         continue
 
-    #     imagesetfile = '/mirror_nfs1/code/aniruddha/detection-patch/dataset/no_class_overlap/' + cls + '_test.txt'
     #     print(imagesetfile)
     #     rec, prec, ap = voc_eval(
     #             filename, annopath, imagesetfile, cls, cachedir, ovthresh=0.5,
@@ -426,7 +419,7 @@ def _do_python_eval(res_prefix, output_dir = 'output'):
 
 if __name__ == '__main__':
     import sys
-    if len(sys.argv) == 6: #Hamed
+    if len(sys.argv) == 6:
         res_prefix = sys.argv[1]
         if not os.path.exists(os.path.dirname(sys.argv[4])):
             os.makedirs(os.path.dirname(sys.argv[4]))

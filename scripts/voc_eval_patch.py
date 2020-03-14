@@ -6,7 +6,7 @@
 
 import xml.etree.ElementTree as ET
 import os,sys
-import cPickle
+import _pickle as cPickle
 import numpy as np
 
 def parse_rec(filename):
@@ -25,7 +25,7 @@ def parse_rec(filename):
                               int(bbox.find('xmax').text),
                               int(bbox.find('ymax').text)]
         objects.append(obj_struct)
-    # Added by Aniruddha to retrieve width and height
+    # Added to retrieve width and height
     size_obj = tree.find('size')
     size_struct = {}
     size_struct['width'] = size_obj.find('width').text
@@ -108,7 +108,7 @@ def voc_eval(detpath,
         lines = f.readlines()
     imagenames = [x.strip() for x in lines]
 
-    # added by Aniruddha
+    # added
     imagenames = [imagename.split('/')[-1].split('.')[0] for imagename in imagenames]
     # print(imagenames)
 
@@ -118,8 +118,8 @@ def voc_eval(detpath,
         for i, imagename in enumerate(imagenames):
             recs[imagename] = parse_rec(annopath.format(imagename))
             if i % 100 == 0:
-                print 'Reading annotation for {:d}/{:d}'.format(
-                    i + 1, len(imagenames))
+                print('Reading annotation for {:d}/{:d}'.format(
+                    i + 1, len(imagenames)))
         # save - TARGETED only
         # print 'Saving cached annotations to {:s}'.format(cachefile)
         # with open(cachefile, 'w') as f:
@@ -153,7 +153,7 @@ def voc_eval(detpath,
 
     splitlines = [x.strip().split(' ') for x in lines]
 
-    # # Added by Aniruddha - if detection file is empty
+    # # Added - if detection file is empty
     # if len(splitlines) == 0:
     #     return 0, 0, 0
 
@@ -178,7 +178,7 @@ def voc_eval(detpath,
         R = class_recs[image_ids[d]]
         bb = BB[d, :].astype(float)
         ovmax = -np.inf
-        BBGT = R['bbox'].astype(float)            # Change Aniruddha
+        BBGT = R['bbox'].astype(float)            # Change
 
         width = int(class_recs[image_ids[d]]['size']['width'])
         height = int(class_recs[image_ids[d]]['size']['height'])
@@ -229,7 +229,7 @@ def voc_eval(detpath,
 
 def _do_python_eval(res_prefix, output_dir = 'output'):
     #_devkit_path = '/data/xiaohang/pytorch-yolo2/VOCdevkit'
-    _devkit_path = '/mirror_nfs1/code/aniruddha/detection-patch/VOCdevkit'          # Changed by Aniruddha
+    _devkit_path = '<devkit_root>/VOCdevkit'          # Changed
     _year = '2007'
     _classes = ('__background__', # always index 0
         'aeroplane', 'bicycle', 'bird', 'boat',
@@ -247,9 +247,6 @@ def _do_python_eval(res_prefix, output_dir = 'output'):
         '{:s}.xml')
 
 
-    # Changed by Aniruddha
-    # imagesetfile = '/mirror_nfs1/code/aniruddha/detection-patch/dataset/no_class_overlap/aeroplane_test.txt'
-
     # imagesetfile = os.path.join(
     #     _devkit_path,
     #     'VOC' + _year,
@@ -258,28 +255,24 @@ def _do_python_eval(res_prefix, output_dir = 'output'):
     #     'test.txt')
     #cachedir = os.path.join(_devkit_path, 'annotations_cache')
 
-    cachedir = sys.argv[3] #Hamed
-#    cachedir = '/mirror_nfs1/code/aniruddha/detection-patch/annotations/KITTI/train_clean_car_half2' # + res_prefix.split('/')[-2]
-    # cachedir = '/mirror_nfs1/code/aniruddha/detection-patch/annotations/experiment7_evaluation/2007_test/'
+    cachedir = sys.argv[3]
     aps = []
     # The PASCAL VOC metric changed in 2010
     # use_07_metric = True if int(_year) < 2010 else False
     use_07_metric = True
-    print 'VOC07 metric? ' + ('Yes' if use_07_metric else 'No')
+    print('VOC07 metric? ' + ('Yes' if use_07_metric else 'No'))
     if not os.path.isdir(output_dir):
         os.mkdir(output_dir)
 
 
-    imagesetfile = sys.argv[2] #Hamed
-#    imagesetfile = '/mirror_nfs1/data/aniruddha/detection-patch/KITTI/dataset/car_train_half2.txt' # + res_prefix.split('/')[-2] + '_test_half_2.txt'
-    # imagesetfile = '/mirror_nfs1/code/aniruddha/detection-patch/2007_test.txt'
-    print(imagesetfile)
-    # Changed by Aniruddha
+    imagesetfile = sys.argv[2]
+#   print(imagesetfile)
+    # Changed
     for i, cls in enumerate(_classes):
         if cls == '__background__':
             continue
 
-        if cls != sys.argv[4]:                  # Change Aniruddha
+        if cls != sys.argv[4]:                  # Change
             continue
 
         rec, prec, ap = voc_eval(
@@ -287,7 +280,7 @@ def _do_python_eval(res_prefix, output_dir = 'output'):
             use_07_metric=use_07_metric)
         aps += [ap]
         print('AP for {} = {:.4f}'.format(cls, ap))
-        # Changed by Aniruddha
+        # Changed by
         # with open(os.path.join(output_dir, cls + '_pr.pkl'), 'w') as f:
         #     cPickle.dump({'rec': rec, 'prec': prec, 'ap': ap}, f)
     # print('Mean AP = {:.4f}'.format(np.mean(aps)))
@@ -303,7 +296,6 @@ def _do_python_eval(res_prefix, output_dir = 'output'):
     #     if cls == '__background__':
     #         continue
 
-    #     imagesetfile = '/mirror_nfs1/code/aniruddha/detection-patch/dataset/no_class_overlap/' + cls + '_test.txt'
     #     print(imagesetfile)
     #     rec, prec, ap = voc_eval(
     #             filename, annopath, imagesetfile, cls, cachedir, ovthresh=0.5,
@@ -323,7 +315,7 @@ if __name__ == '__main__':
     #classes = ["aeroplane", "bicycle", "bird", "boat", "bottle", "bus", "car", "cat", "chair", "cow", "diningtable", "dog", "horse", "motorbike", "person", "pottedplant", "sheep", "sofa", "train", "tvmonitor"]
 
     import sys
-    if len(sys.argv) == 5: #Hamed
+    if len(sys.argv) == 5:
         res_prefix = sys.argv[1]
         _do_python_eval(res_prefix, output_dir = 'output')
     else:

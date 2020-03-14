@@ -1,0 +1,56 @@
+name: pytorch_1.1
+channels:
+  - pytorch
+  - conda-forge
+  - soumith
+  - defaults
+dependencies:
+  - _libgcc_mutex=0.1=conda_forge
+  - _openmp_mutex=4.5=0_gnu
+  - ca-certificates=2019.11.28=hecc5488_0
+  - certifi=2019.11.28=py36h9f0ad1d_1
+  - cffi=1.14.0=py36hd463f26_0
+  - cudatoolkit=10.0.130=0
+  - freetype=2.10.0=he983fc9_1
+  - intel-openmp=2020.0=166
+  - jpeg=9c=h14c3975_1001
+  - ld_impl_linux-64=2.33.1=h53a641e_8
+  - libblas=3.8.0=14_openblas
+  - libcblas=3.8.0=14_openblas
+  - libffi=3.2.1=he1b5a44_1006
+  - libgcc-ng=9.2.0=h24d8f2e_2
+  - libgfortran-ng=7.3.0=hdf63c60_5
+  - libgomp=9.2.0=h24d8f2e_2
+  - liblapack=3.8.0=14_openblas
+  - libopenblas=0.3.7=h5ec1e0e_6
+  - libpng=1.6.37=hed695b0_0
+  - libstdcxx-ng=9.2.0=hdf63c60_2
+  - libtiff=4.1.0=hc3755c2_3
+  - lz4-c=1.8.3=he1b5a44_1001
+  - mkl=2020.0=166
+  - ncurses=6.1=hf484d3e_1002
+  - ninja=1.10.0=hc9558a2_0
+  - numpy=1.18.1=py36h95a1406_0
+  - olefile=0.46=py_0
+  - openssl=1.1.1d=h516909a_0
+  - pillow=6.1.0=py36h6b7be26_1
+  - pip=20.0.2=py_2
+  - pycparser=2.20=py_0
+  - python=3.6.7=h357f687_1008_cpython
+  - python_abi=3.6=1_cp36m
+  - pytorch=1.1.0=py3.6_cuda10.0.130_cudnn7.5.1_0
+  - readline=8.0=hf8c457e_0
+  - setuptools=46.0.0=py36h9f0ad1d_2
+  - six=1.14.0=py_1
+  - sqlite=3.30.1=hcee41ef_0
+  - tk=8.6.10=hed695b0_0
+  - torchvision=0.3.0=py36_cu10.0.130_1
+  - wheel=0.34.2=py_1
+  - xz=5.2.4=h14c3975_1001
+  - zlib=1.2.11=h516909a_1006
+  - zstd=1.4.4=h3b9ef0a_1
+  - pip:
+    - opencv-python==4.2.0.32
+    - scipy==1.4.1
+prefix: /home/ani0075/anaconda3/envs/pytorch_1.1
+

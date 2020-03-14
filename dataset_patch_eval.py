@@ -67,23 +67,13 @@ class listDataset(Dataset):
             label = torch.from_numpy(label)
         else:
 
-            # # Change Aniruddha - because patch results are in cv2 BGR format
-            # CV_im = cv2.imread(imgpath)
-            # CV_im_RGB = CV_im[:, :, ::-1].copy()
-            # img = Image.fromarray(CV_im_RGB)
             img = Image.open(imgpath).convert('RGB')
             if self.shape:
                 img = img.resize(self.shape)
 
             # Change because labels are in VOCdevkit
             classname = imgpath.split('/')[-2]
-            # imgpath = imgpath.replace('/mirror_nfs1/code/aniruddha/detection-patch/VOCdevkit/VOC2007/JPEGImages/',
-            #     '/mirror_nfs1/data/aniruddha/detection-patch/perimagepatch_objectness_alltogether/patched_images/cat/').replace('.jpg','.png')
-            #print(imgpath)
-            labpath = imgpath.replace('data/aniruddha/detection-patch/perimagepatch/patched_images/' + classname, 'code/aniruddha/detection-patch/VOCdevkit/VOC2007/JPEGImages').replace('JPEGImages', 'labels').replace('.jpg', '.txt').replace('.png','.txt')
-            # print(labpath + '\n' + imgpath)
-            #labpath = imgpath.replace('images', 'labels').replace('JPEGImages', 'labels').replace('.jpg', '.txt').replace('.png','.txt')
-            #labpath = imgpath.replace('images', 'labels').replace('train', 'labels').replace('.jpg', '.txt').replace('.png','.txt')
+            labpath = imgpath.replace('JPEGImages', 'labels').replace('.jpg', '.txt').replace('.png','.txt')
             label = torch.zeros(50*5)
             #if os.path.getsize(labpath):
             #tmp = torch.from_numpy(np.loadtxt(labpath))
@@ -108,6 +98,4 @@ class listDataset(Dataset):
             label = self.target_transform(label)
 
         self.seen = self.seen + self.num_workers
-        ''' Return imgpath as well. Akshay code.
-        '''
         return (img, label, imgpath)

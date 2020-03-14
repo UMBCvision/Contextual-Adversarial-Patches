@@ -73,16 +73,11 @@ class listDataset(Dataset):
             if self.shape:
                 img = img.resize(self.shape)
 
-            labpath = imgpath.replace('images', 'labels').replace('JPEGImages', 'labels').replace('.jpg', '.txt').replace('.png','.txt') #Hamed
+            labpath = imgpath.replace('images', 'labels').replace('JPEGImages', 'labels').replace('.jpg', '.txt').replace('.png','.txt')
             # # for KITTI
             # labpath = imgpath.replace('images', 'labels').replace('PNGImages_cropped', 'labels_cropped_car_person').replace('.jpg', '.txt').replace('.png','.txt')
             #labpath = imgpath.replace('images', 'labels').replace('train', 'labels').replace('.jpg', '.txt').replace('.png','.txt')
             label = torch.zeros(50*5)
-            # Aniruddha
-            # label = torch.zeros(14*5)
-            # pdb.set_trace()
-            #if os.path.getsize(labpath):
-            #tmp = torch.from_numpy(np.loadtxt(labpath))
             try:
                 tmp = torch.from_numpy(read_truths_args(labpath, 8.0/img.width).astype('float32'))
             except Exception:
@@ -107,20 +102,4 @@ class listDataset(Dataset):
             label = self.target_transform(label)
 
         self.seen = self.seen + self.num_workers
-        ''' Return imgpath as well. Akshay code.
-        '''
-
-        # Aniruddha - for physical world
-        # label = label.view(-1, 5)
-        # # Aniruddha - Convert PASCAL annotations (xmin, ymin, xmax, ymax) to YOLO prediction format (x, y, w, h)
-
-        # label_temp = torch.zeros_like(label)
-        # label_temp[:,0] = label[:,0]
-        # label_temp[:,1] = (label[:,1] + label[:,3])/2
-        # label_temp[:,2] = (label[:,2] + label[:,4])/2
-        # label_temp[:,3] = (label[:,3] - label[:,1])
-        # label_temp[:,4] = (label[:,4] - label[:,2])
-
-        # label = label_temp
-
         return (img, label, imgpath)

@@ -156,7 +156,7 @@ def train(epoch):
                        seen=cur_model.seen,
                        batch_size=batch_size,
                        num_workers=num_workers),
-        batch_size=batch_size, shuffle=True, **kwargs) #Hamed
+        batch_size=batch_size, shuffle=True, **kwargs)
 
     ''' Use YOLO in evaluation mode
     '''
@@ -180,7 +180,7 @@ def train(epoch):
 
         if use_cuda:
             data0 = data0.cuda()
-            target0 = target0.cuda()
+            # target0 = target0.cuda()
         data0, target0 = Variable(data0, requires_grad=False), Variable(target0, requires_grad=False)
 
         data_cloned = data0.clone()
@@ -203,7 +203,7 @@ def train(epoch):
 
             output_patch = model(data_cloned) # forward patched image
 
-            # Change Aniruddha - to pass the targeted class as parameter to loss function
+            # Change - to pass the targeted class as parameter to loss function
             loss, max_class_prob = region_loss(output_patch, target0, reqd_class_index)
 
             loss.backward()
@@ -212,15 +212,15 @@ def train(epoch):
             optimizer.step()
 
             print("[" + time.asctime(time.localtime(time.time())) + "]" + 'Batch num:%d Iteration: %d / %d Loss : %f noise norm: %f Fooled so far: %d Max_prob: %f' \
-                                % (batch_idx, i, num_iter, loss.data[0], model.noise.norm(), num_fooled, max_class_prob))
+                                % (batch_idx, i, num_iter, loss.item(), model.noise.norm(), num_fooled, max_class_prob))
 
-            if max_class_prob < 0.35:           # Changed Aniruddha
+            if max_class_prob < 0.35:           # Changed
                 num_fooled = num_fooled + 1
                 break
 
     if (epoch+1)%5 == 0:
         model.noise.data = torch.clamp(model.noise.data, 0, 1)
-        np.save(noise_result_dir +'/'+ 'epoch_' + str(epoch+1) + '_universal_patch.npy', model.noise.data.squeeze())
+        np.save(noise_result_dir +'/'+ 'epoch_' + str(epoch+1) + '_universal_patch.npy', model.noise.data.cpu().squeeze())
         save_image(model.noise.data.squeeze(), noise_result_dir +'/'+ 'epoch_' + str(epoch+1) + '_universal_patch.png')
 
 
