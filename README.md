@@ -1,6 +1,6 @@
 # Contextual-Adversarial-Patches
 
-Official Implementation of the paper Adversarial Patches Exploiting Contextual Reasoning in Object Detection
+Official Implementation of the paper [Adversarial Patches Exploiting Contextual Reasoning in Object Detection][paper]
 
 The utilization of spatial context to improve accuracy in most fast object detection algorithms is well known. Detectors increase inference speed by doing a single forward pass per image which means they implicitly use contextual reasoning for their predictions. It can been shown that an adversary can design contextual adversarial patches - patches which do not overlap with any objects of interest in the scene - and exploit contextual reasoning to fool standard detectors. In this paper, we also study methods to fix this vulnerability. We design category specific adversarial patches which make a widely used object detector like YOLO blind to an attacker chosen object category and show that limiting the use of contextual reasoning during object detector training acts as a form of defense. We believe defending against context based adversarial attacks is not an easy task. We take a step towards that direction and urge the research community to give attention to this vulnerability.
 
@@ -65,4 +65,5 @@ If you find our paper or code useful, please cite us using
 }
 ```
 
+[paper]: https://arxiv.org/abs/1910.00068
 [teaser]: https://github.com/UMBCvision/Contextual-Adversarial-Patches/blob/master/Teaser_Contextual_Reasoning.PNG
