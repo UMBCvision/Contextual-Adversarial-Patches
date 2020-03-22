@@ -19,6 +19,8 @@ python filter_PASCAL_VOC.py PASCAL_VOC_annotations.txt <devkit_root>/VOCdevkit/V
 
 This script reads the annotation txt file containing the bounding box and size information of each image in PASCAL VOC 2007 and finds images for each class where no ground truth boxes of that class overlap with our patch location.
 
+The image sets used for the experiments in the paper are provided in dataset/no_class_overlap_clean_test
+
 ## Download Pretrained Weights
 Download darknet weights
 ```
