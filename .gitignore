@@ -129,7 +129,7 @@ dmypy.json
 .pyre/
 
 .idea/
-data/perimagepatch/
+dataset/perimagepatch/
 logs/
 output/
 results/
