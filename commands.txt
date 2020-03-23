@@ -1,5 +1,5 @@
 # filter dataset
-python filter_PASCAL_VOC.py PASCAL_VOC_annotations.txt /nfs1/code/aniruddha/detection-patch/VOCdevkit/VOC2007/ImageSets/Main/test.txt
+python filter_PASCAL_VOC.py PASCAL_VOC_annotations.txt <devkit-root>/VOCdevkit/VOC2007/ImageSets/Main/test.txt
 
 PER IMAGE PATCH
 
