@@ -12,7 +12,20 @@ An environment file has been provided.
 
 ## Dataset creation
 
-Download PASCAL VOC data. You can follow the steps here https://github.com/marvis/pytorch-yolo2. Insert appropriate Devkit path. Look for occurrences of <devkit_root> in the project.
+Download PASCAL VOC data. 
+```
+wget https://pjreddie.com/media/files/VOCtrainval_11-May-2012.tar
+wget https://pjreddie.com/media/files/VOCtrainval_06-Nov-2007.tar
+wget https://pjreddie.com/media/files/VOCtest_06-Nov-2007.tar
+tar xf VOCtrainval_11-May-2012.tar
+tar xf VOCtrainval_06-Nov-2007.tar
+tar xf VOCtest_06-Nov-2007.tar
+wget http://pjreddie.com/media/files/voc_label.py
+python voc_label.py
+cat 2007_train.txt 2007_val.txt 2012_*.txt > voc_train.txt
+```
+
+Insert appropriate Devkit path. Look for occurrences of <devkit_root> in the project.
 ```python
 python filter_PASCAL_VOC.py PASCAL_VOC_annotations.txt <devkit_root>/VOCdevkit/VOC2007/ImageSets/Main/test.txt
 ```
@@ -52,18 +65,16 @@ This script trains universal contextual adversarial patch for a chosen category 
 python train_defense.py cfg/voc.data cfg/yolo-defense.cfg weights/darknet19_448.conv.23 backupdir voc_train.txt
 ```
 
-## Acknowledgement
-
-This repository was built with help from https://github.com/marvis/pytorch-yolo2.
 
 ## Citation
 If you find our paper or code useful, please cite us using
 ```bib
-@article{saha2019adversarial,
-  title={Adversarial Patches Exploiting Contextual Reasoning in Object Detection},
-  author={Saha, Aniruddha and Subramanya, Akshayvarun and Patil, Koninika and Pirsiavash, Hamed},
-  journal={arXiv preprint arXiv:1910.00068},
-  year={2019}
+@InProceedings{Saha_2020_CVPR_Workshops,
+author = {Saha, Aniruddha and Subramanya, Akshayvarun and Patil, Koninika and Pirsiavash, Hamed},
+title = {Role of Spatial Context in Adversarial Robustness for Object Detection},
+booktitle = {The IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) Workshops},
+month = {June},
+year = {2020}
 }
 ```
 
